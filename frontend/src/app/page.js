@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import ProductGrid from '@/components/product/ProductGrid';
-import { ArrowRight, Laptop, Shirt, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
+import RecommendationSection from '@/components/product/RecommendationSection';
+import { ArrowRight, Laptop, Shirt, ShieldCheck, Truck, RefreshCw, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
   const { data: productRes, isLoading } = useQuery({
@@ -129,6 +130,16 @@ export default function HomePage() {
             </div>
           </Link>
         </div>
+      </section>
+
+      {/* AI Recommendations */}
+      <section className="px-6 md:px-12 max-w-6xl mx-auto w-full">
+        <RecommendationSection 
+          title="AI Recommended For You"
+          subtitle="Smart recommendations generated based on user preferences and sales activity"
+          endpoint="/products/recommendations/user"
+          icon={Sparkles}
+        />
       </section>
 
       {/* Featured Products */}

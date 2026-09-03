@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import ProductGallery from '@/components/product/ProductGallery';
-import { Star, ShieldCheck, Heart, ShoppingBag, Plus, Minus, ArrowLeft } from 'lucide-react';
+import RecommendationSection from '@/components/product/RecommendationSection';
+import { Star, ShieldCheck, Heart, ShoppingBag, Plus, Minus, ArrowLeft, Sparkles } from 'lucide-react';
 import { useCart } from '@/store/CartContext';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -215,6 +216,16 @@ export default function ProductDetailPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* AI Recommendations: Frequently Bought Together & Similar Items */}
+      <div className="border-t border-white/5 pt-12">
+        <RecommendationSection 
+          title="Frequently Bought Together & Smart AI Picks"
+          subtitle="Products frequently combined or matching feature vectors of this item"
+          endpoint={`/products/recommendations/product/${product.id}`}
+          icon={Sparkles}
+        />
       </div>
 
       {/* Reviews & Submit review form */}

@@ -16,6 +16,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const userRoutes = require('./routes/userRoutes');
 const couponRoutes = require('./routes/couponRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Mount Routes
+app.use('/api/products/recommendations', recommendationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);

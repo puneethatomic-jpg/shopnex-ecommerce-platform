@@ -42,4 +42,20 @@ describe('ShopNex API Integration Tests', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty('userId');
   });
+
+  test('GET /api/products/recommendations/trending - Retrieve trending AI recommendations', async () => {
+    const res = await request(app).get('/api/products/recommendations/trending');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  test('GET /api/products/recommendations/user - Retrieve personalized AI recommendations', async () => {
+    const res = await request(app)
+      .get('/api/products/recommendations/user')
+      .set('Authorization', 'Bearer mock_customer_123');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });
