@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/store/AuthContext';
 import { useCart } from '@/store/CartContext';
 import AuthModal from '../auth/AuthModal';
@@ -15,12 +16,33 @@ import {
   LogOut,
   PackageCheck,
   ChevronDown,
-  LogIn
+  LogIn,
+  Search,
+  Command
 } from 'lucide-react';
 
-export default function Navbar() {
+export function CartBadge({ count }) {
+  return (
+    <AnimatePresence mode="popLayout">
+      {count > 0 && (
+        <motion.span
+          key={count}
+          initial={{ scale: 0.4, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+          className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[10px] font-bold text-white ring-2 ring-slate-950 shadow-[0_0_10px_rgba(124,58,237,0.5)]"
+        >
+          {count}
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export default function Navbar({ onOpenSearch }) {
   const { user, isAdmin, logout } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount, openDrawer } = useCart();
   const pathname = usePathname();
   
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -37,7 +59,7 @@ export default function Navbar() {
           <span className="text-xl font-bold tracking-tight text-gradient">ShopNex</span>
         </Link>
 
-        {/* Navigation links */}
+        {/* Navigation links & Search Command Trigger */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link 
             href="/" 
@@ -57,10 +79,31 @@ export default function Navbar() {
           >
             Categories
           </Link>
+
+          {/* Search Trigger Button */}
+          <button
+            onClick={onOpenSearch}
+            className="flex items-center gap-3 px-3.5 py-1.5 bg-slate-900/80 hover:bg-slate-800 border border-white/10 hover:border-violet-500/30 rounded-xl text-xs text-slate-400 transition-all group"
+          >
+            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-violet-400 transition-colors" />
+            <span className="group-hover:text-slate-200">Search products...</span>
+            <span className="flex items-center gap-0.5 px-1.5 py-0.5 text-[9px] font-mono text-slate-500 bg-white/5 border border-white/10 rounded-md ml-2">
+              <Command className="w-2.5 h-2.5" /> K
+            </span>
+          </button>
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Mobile Search Button */}
+          <button
+            onClick={onOpenSearch}
+            className="md:hidden p-2 text-slate-300 hover:text-violet-400 transition-colors"
+            title="Search"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+
           {/* Dashboard link if admin */}
           {isAdmin && (
             <Link 
@@ -77,19 +120,19 @@ export default function Navbar() {
             <Heart className="w-5 h-5" />
           </Link>
 
-          {/* Cart */}
-          <Link href="/cart" className="relative p-2 text-slate-300 hover:text-violet-400 transition-colors" title="Shopping Cart">
+          {/* Mini Cart Drawer Trigger with Animated Pop & Bounce Badge */}
+          <button 
+            onClick={openDrawer} 
+            className="relative p-2 text-slate-300 hover:text-violet-400 transition-colors flex items-center justify-center" 
+            title="Open Mini Cart"
+          >
             <ShoppingBag className="w-5 h-5" />
-            {itemCount > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 bg-violet-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse">
-                {itemCount}
-              </span>
-            )}
-          </Link>
+            <CartBadge count={itemCount} />
+          </button>
 
           {/* User profile dropdown or Sign In CTA */}
           {user ? (
-            <div className="relative border-l border-white/10 pl-4">
+            <div className="relative border-l border-white/10 pl-3 md:pl-4">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 p-1.5 bg-slate-900 border border-white/10 hover:border-violet-500/30 rounded-xl text-xs text-slate-200 transition-all"

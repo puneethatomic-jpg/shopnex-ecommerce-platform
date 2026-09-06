@@ -1,21 +1,50 @@
+'use client';
+
 import React from 'react';
+import { motion } from 'framer-motion';
 import ProductCard from './ProductCard';
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="animate-pulse rounded-2xl bg-zinc-900/40 p-4 border border-zinc-800/50">
+      <div className="aspect-square w-full rounded-xl bg-zinc-800/60" />
+      <div className="mt-4 space-y-2">
+        <div className="h-4 w-3/4 rounded bg-zinc-800/80" />
+        <div className="h-3 w-1/2 rounded bg-zinc-800/40" />
+      </div>
+      <div className="mt-4 flex justify-between items-center">
+        <div className="h-5 w-16 rounded bg-zinc-800/80" />
+        <div className="h-8 w-20 rounded-lg bg-zinc-800" />
+      </div>
+    </div>
+  );
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
+};
 
 export default function ProductGrid({ products, loading }) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="animate-pulse bg-slate-900/40 rounded-2xl border border-white/5 aspect-[4/5] flex flex-col p-5">
-            <div className="bg-slate-950 w-full aspect-square rounded-xl mb-4"></div>
-            <div className="bg-slate-950 h-3 w-1/4 rounded-full mb-2"></div>
-            <div className="bg-slate-950 h-4 w-3/4 rounded-full mb-3"></div>
-            <div className="bg-slate-950 h-3.5 w-1/2 rounded-full mb-6"></div>
-            <div className="mt-auto flex items-center justify-between">
-              <div className="bg-slate-950 h-5 w-1/3 rounded-full"></div>
-              <div className="bg-slate-950 h-9 w-9 rounded-xl"></div>
-            </div>
-          </div>
+          <ProductCardSkeleton key={i} />
         ))}
       </div>
     );
@@ -31,10 +60,18 @@ export default function ProductGrid({ products, loading }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-50px' }}
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+    >
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <motion.div key={product.id} variants={itemVariants}>
+          <ProductCard product={product} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

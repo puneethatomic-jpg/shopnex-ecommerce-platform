@@ -12,6 +12,10 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [coupon, setCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const openDrawer = () => setIsDrawerOpen(true);
+  const closeDrawer = () => setIsDrawerOpen(false);
 
   const fetchCart = async () => {
     if (!user) return;
@@ -42,6 +46,7 @@ export function CartProvider({ children }) {
       setLoading(true);
       await api.post('/cart', { productId, quantity });
       await fetchCart();
+      setIsDrawerOpen(true); // Automatically open Slide-Over Mini Cart Drawer
     } catch (err) {
       alert(err.message);
       throw err;
@@ -128,6 +133,9 @@ export function CartProvider({ children }) {
         total,
         coupon,
         couponError,
+        isDrawerOpen,
+        openDrawer,
+        closeDrawer,
         fetchCart,
         addToCart,
         updateQuantity,
