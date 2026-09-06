@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/AuthContext';
+import { useRecentlyViewed } from '@/store/RecentlyViewedContext';
 import api from '@/lib/api';
-import { User, MapPin, ClipboardList, CheckCircle2 } from 'lucide-react';
+import ProductCard from '@/components/product/ProductCard';
+import { User, MapPin, ClipboardList, Clock, Trash2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { recentlyViewed, clearRecentlyViewed } = useRecentlyViewed();
   const queryClient = useQueryClient();
 
   const [name, setName] = useState('');
@@ -61,23 +64,34 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="px-6 md:px-12 py-12 max-w-5xl mx-auto w-full flex flex-col gap-10">
-      <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">My Account</h1>
-        <span className="text-xs text-slate-500 mt-0.5">Manage details, addresses, and track orders</span>
+    <div className="px-6 md:px-12 py-12 max-w-5xl mx-auto w-full flex flex-col gap-12">
+      {/* Page Header */}
+      <div className="flex items-center justify-between border-b border-white/5 pb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">My Account & Activity</h1>
+          <span className="text-xs text-slate-500 mt-0.5">Manage details, order history, and viewed products</span>
+        </div>
+        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+          profile.role === 'ADMIN' 
+            ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
+            : 'bg-violet-500/10 text-violet-400 border-violet-500/20'
+        }`}>
+          {profile.role} Portal
+        </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Profile Card & Info */}
+        {/* Profile Card & Addresses */}
         <div className="flex flex-col gap-6 lg:col-span-1">
+          {/* User Details Form/Card */}
           <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 flex flex-col gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-violet-600/30 border border-violet-500/30 flex items-center justify-center text-violet-200 text-lg font-bold uppercase">
+              <div className="w-12 h-12 rounded-full bg-violet-600/30 border border-violet-500/30 flex items-center justify-center text-violet-200 text-lg font-bold uppercase shadow-md">
                 {profile.name[0]}
               </div>
               <div className="flex flex-col">
                 <h3 className="text-sm font-bold text-white leading-none">{profile.name}</h3>
-                <span className="text-[10px] text-slate-500 capitalize mt-1">{profile.role} Profile</span>
+                <span className="text-[10px] text-slate-400 capitalize mt-1">{profile.email}</span>
               </div>
             </div>
 
@@ -89,7 +103,7 @@ export default function ProfilePage() {
                     type="text" 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="px-3 py-2 bg-slate-950 border border-white/10 rounded-lg text-white"
+                    className="px-3.5 py-2.5 bg-slate-950 border border-white/10 rounded-xl text-white focus:outline-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -98,21 +112,21 @@ export default function ProfilePage() {
                     type="text" 
                     value={phone}
                     onChange={(e) => setPhone(e.target.value || '')}
-                    className="px-3 py-2 bg-slate-950 border border-white/10 rounded-lg text-white"
+                    className="px-3.5 py-2.5 bg-slate-950 border border-white/10 rounded-xl text-white focus:outline-none"
                   />
                 </div>
                 <div className="flex gap-2.5 mt-2">
                   <button 
                     type="submit" 
                     disabled={updateMutation.isPending}
-                    className="glow-btn flex-1 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-xs font-semibold"
+                    className="glow-btn flex-1 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-semibold"
                   >
                     Save
                   </button>
                   <button 
                     type="button" 
                     onClick={() => setEditing(false)}
-                    className="flex-1 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-xs font-semibold"
+                    className="flex-1 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-semibold"
                   >
                     Cancel
                   </button>
@@ -122,17 +136,17 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-4 text-xs">
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-slate-400">Email</span>
-                  <span className="text-slate-200">{profile.email}</span>
+                  <span className="text-slate-200 font-semibold">{profile.email}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-slate-400">Phone</span>
-                  <span className="text-slate-200">{profile.phone || 'Not provided'}</span>
+                  <span className="text-slate-200 font-semibold">{profile.phone || 'Not provided'}</span>
                 </div>
                 <button 
                   onClick={handleStartEdit}
                   className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-semibold transition-all"
                 >
-                  Edit Profile
+                  Edit Profile Details
                 </button>
               </div>
             )}
@@ -165,7 +179,7 @@ export default function ProfilePage() {
         <div className="lg:col-span-2 bg-slate-900/20 border border-white/5 rounded-2xl p-6 flex flex-col gap-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
             <ClipboardList className="w-4.5 h-4.5 text-violet-400" />
-            Order History ({orders.length} orders)
+            Order Transaction History ({orders.length} orders)
           </h3>
 
           {orders.length === 0 ? (
@@ -192,7 +206,7 @@ export default function ProfilePage() {
 
                   <div className="flex items-center gap-6">
                     <div className="flex flex-col text-right">
-                      <span className="text-[10px] text-slate-500">Total Price</span>
+                      <span className="text-[10px] text-slate-500">Total Charged</span>
                       <span className="font-bold text-white">${ord.total.toFixed(2)}</span>
                     </div>
                     <Link 
@@ -207,6 +221,43 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Recently Viewed Browsing History */}
+      <div className="border-t border-white/5 pt-10 flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-violet-400" />
+            <div>
+              <h2 className="text-lg font-bold text-white tracking-tight">Recently Viewed Products</h2>
+              <span className="text-xs text-slate-400">Products you inspected during your recent browsing session</span>
+            </div>
+          </div>
+
+          {recentlyViewed.length > 0 && (
+            <button
+              onClick={clearRecentlyViewed}
+              className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Clear History
+            </button>
+          )}
+        </div>
+
+        {recentlyViewed.length === 0 ? (
+          <div className="bg-slate-900/10 border border-white/5 rounded-2xl p-8 text-center flex flex-col items-center justify-center gap-2">
+            <span className="text-xs text-slate-500">No recently viewed history yet. Explore the catalogue to record items here!</span>
+            <Link href="/products" className="text-xs text-violet-400 hover:underline flex items-center gap-1 font-bold mt-1">
+              Explore Shop Catalogue <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {recentlyViewed.map((prod) => (
+              <ProductCard key={prod.id} product={prod} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

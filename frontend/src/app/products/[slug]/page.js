@@ -8,6 +8,7 @@ import ProductGallery from '@/components/product/ProductGallery';
 import RecommendationSection from '@/components/product/RecommendationSection';
 import { Star, ShieldCheck, Heart, ShoppingBag, Plus, Minus, ArrowLeft, Sparkles } from 'lucide-react';
 import { useCart } from '@/store/CartContext';
+import { useRecentlyViewed } from '@/store/RecentlyViewedContext';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -15,6 +16,7 @@ export default function ProductDetailPage() {
   const { slug: productId } = useParams();
   const queryClient = useQueryClient();
   const { addToCart } = useCart();
+  const { addRecentlyViewed } = useRecentlyViewed();
 
   const [quantity, setQuantity] = useState(1);
   const [rating, setRating] = useState(5);
@@ -31,6 +33,13 @@ export default function ProductDetailPage() {
   const ratingAvg = product?.reviews?.length
     ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length).toFixed(1)
     : '5.0';
+
+  // Automatically record product in browsing history when loaded
+  React.useEffect(() => {
+    if (product) {
+      addRecentlyViewed(product);
+    }
+  }, [product]);
 
   // Add review mutation
   const addReviewMutation = useMutation({
