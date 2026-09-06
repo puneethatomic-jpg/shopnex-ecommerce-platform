@@ -43,12 +43,6 @@ export default function HomePage() {
             Shop Catalogue
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link 
-            href="/categories" 
-            className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-xs font-bold transition-all"
-          >
-            Browse Categories
-          </Link>
         </div>
       </section>
 
