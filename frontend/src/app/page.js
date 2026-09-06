@@ -6,9 +6,15 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import ProductGrid from '@/components/product/ProductGrid';
 import RecommendationSection from '@/components/product/RecommendationSection';
-import { ArrowRight, Laptop, Shirt, ShieldCheck, Truck, RefreshCw, Sparkles } from 'lucide-react';
+import { ArrowRight, Laptop, Shirt, ShieldCheck, Truck, RefreshCw, Sparkles, User, KeyRound, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '@/store/AuthContext';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function HomePage() {
+  const { user, switchRole } = useAuth();
+  const router = useRouter();
+
   const { data: productRes, isLoading } = useQuery({
     queryKey: ['homeProducts'],
     queryFn: () => api.get('/products?limit=4'),
@@ -16,10 +22,24 @@ export default function HomePage() {
 
   const products = productRes?.data || [];
 
+  const handleQuickLogin = async (targetRole) => {
+    try {
+      await switchRole(targetRole);
+      toast.success(`Switched to ${targetRole === 'ADMIN' ? 'Administrator' : 'Customer'} account!`);
+      if (targetRole === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/profile');
+      }
+    } catch (e) {
+      toast.error('Failed to switch portal account');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-20 pb-20">
       {/* Hero Banner */}
-      <section className="relative overflow-hidden pt-24 pb-20 px-6 md:px-12 flex flex-col items-center justify-center text-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/20 via-slate-950 to-slate-950 min-h-[60vh]">
+      <section className="relative overflow-hidden pt-24 pb-20 px-6 md:px-12 flex flex-col items-center justify-center text-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/20 via-slate-950 to-slate-950 min-h-[55vh]">
         <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         
         <span className="text-xs uppercase font-bold tracking-widest text-violet-400 bg-violet-500/10 px-4 py-1.5 rounded-full border border-violet-500/20 mb-6 animate-pulse">
@@ -32,7 +52,7 @@ export default function HomePage() {
         </h1>
 
         <p className="text-sm md:text-base text-slate-400 max-w-xl mb-10 leading-relaxed">
-          Welcome to ShopNex. Explore premium brands, fast checkout, responsive designs, and seamless order tracking.
+          Welcome to ShopNex. Select a portal account below or explore premium catalog items, checkout flows, and AI recommendations.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -49,6 +69,102 @@ export default function HomePage() {
           >
             Browse Categories
           </Link>
+        </div>
+      </section>
+
+      {/* Account Credentials Portal Selection Banner */}
+      <section className="px-6 md:px-12 max-w-6xl mx-auto w-full -mt-10 z-20">
+        <div className="bg-slate-900/90 border border-violet-500/30 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col gap-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-violet-600/20 text-violet-300 border border-violet-500/30 rounded-2xl">
+                <KeyRound className="w-6 h-6 animate-bounce" />
+              </div>
+              <div className="flex flex-col">
+                <h3 className="text-base font-bold text-white tracking-tight">Portal Account Selector</h3>
+                <span className="text-xs text-slate-400">One-click portal access for Customer and Admin accounts</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-400">Current Session:</span>
+              <span className="px-2.5 py-1 bg-violet-500/10 text-violet-300 font-bold border border-violet-500/20 rounded-lg capitalize">
+                {user?.name || 'Customer'} ({user?.role || 'CUSTOMER'})
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Customer Account Card */}
+            <div className={`p-6 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${
+              user?.role === 'CUSTOMER' 
+                ? 'bg-gradient-to-br from-violet-950/40 to-slate-950 border-violet-500/40 shadow-[0_0_20px_rgba(124,58,237,0.15)]'
+                : 'bg-slate-950/60 border-white/10 hover:border-white/20'
+            }`}>
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-violet-600/20 border border-violet-500/30 text-violet-300 rounded-xl">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-sm font-bold text-white">Customer Account</h4>
+                    <span className="text-[10px] text-slate-400 font-mono">customer@shopnex.com</span>
+                  </div>
+                </div>
+                {user?.role === 'CUSTOMER' && (
+                  <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Active
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Access catalog items, shopping cart, custom wishlist, checkout order placing, and viewing personalized AI recommendations.
+              </p>
+
+              <button
+                onClick={() => handleQuickLogin('CUSTOMER')}
+                className="glow-btn mt-2 w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_15px_rgba(124,58,237,0.25)] flex items-center justify-center gap-2"
+              >
+                Open Customer Portal <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Admin Account Card */}
+            <div className={`p-6 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${
+              user?.role === 'ADMIN' 
+                ? 'bg-gradient-to-br from-amber-950/40 to-slate-950 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15)]'
+                : 'bg-slate-950/60 border-white/10 hover:border-white/20'
+            }`}>
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-amber-600/20 border border-amber-500/30 text-amber-300 rounded-xl">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-sm font-bold text-white">Administrator Account</h4>
+                    <span className="text-[10px] text-slate-400 font-mono">admin@shopnex.com</span>
+                  </div>
+                </div>
+                {user?.role === 'ADMIN' && (
+                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded text-[9px] font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Active
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Access Admin Control Dashboard, sales graphs, create/update/delete products, coupon codes manager, and order status updates.
+              </p>
+
+              <button
+                onClick={() => handleQuickLogin('ADMIN')}
+                className="glow-btn mt-2 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition-all shadow-[0_4px_15px_rgba(245,158,11,0.25)] flex items-center justify-center gap-2"
+              >
+                Open Admin Dashboard <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
