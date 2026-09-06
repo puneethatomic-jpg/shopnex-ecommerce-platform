@@ -17,11 +17,8 @@ export function AuthProvider({ children }) {
       setToken(localToken);
       fetchUser(localToken);
     } else {
-      // Default to mock customer for convenience
-      const defaultToken = 'mock_customer_123';
-      localStorage.setItem('shopnex_token', defaultToken);
-      setToken(defaultToken);
-      fetchUser(defaultToken);
+      setUser(null);
+      setLoading(false);
     }
   }, []);
 

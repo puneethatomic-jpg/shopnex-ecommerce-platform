@@ -10,7 +10,7 @@ export default function AuthGateway() {
   const { user, switchRole } = useAuth();
   const router = useRouter();
 
-  const [hasEntered, setHasEntered] = useState(true); // Default true until check
+  const [hasEntered, setHasEntered] = useState(false);
   const [activeTab, setActiveTab] = useState('portal'); // 'portal' | 'credentials'
   const [role, setRole] = useState('CUSTOMER');
   const [email, setEmail] = useState('');
@@ -18,14 +18,14 @@ export default function AuthGateway() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Check if user has explicitly confirmed their portal entry
-    const enteredSession = sessionStorage.getItem('shopnex_portal_entered');
-    if (!enteredSession) {
+    if (user) {
+      setHasEntered(true);
+    } else {
       setHasEntered(false);
     }
-  }, []);
+  }, [user]);
 
-  if (hasEntered) {
+  if (hasEntered && user) {
     return null;
   }
 
