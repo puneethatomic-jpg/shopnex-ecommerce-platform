@@ -1,4 +1,24 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  // In the browser
+  if (typeof window !== 'undefined') {
+    // When running locally on localhost without reverse proxy
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+    // In production on Vercel, requests to /api are rewritten directly to the backend service
+    return '/api';
+  }
+  // Server-side (SSR / Server Actions / Route Handlers) via Vercel service binding
+  if (process.env.BACKEND_URL) {
+    return `${process.env.BACKEND_URL}/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 const api = {
   getHeaders: () => {
