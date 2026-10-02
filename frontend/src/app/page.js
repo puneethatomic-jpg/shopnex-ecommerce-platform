@@ -111,6 +111,7 @@ export default function HomePage() {
                 src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200" 
                 alt="Electronics Banner" 
                 fill 
+                unoptimized
                 className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-40"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
@@ -156,6 +157,7 @@ export default function HomePage() {
                   src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800" 
                   alt="Fashion" 
                   fill 
+                  unoptimized
                   className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-35"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
@@ -188,6 +190,7 @@ export default function HomePage() {
                   src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800" 
                   alt="Gaming" 
                   fill 
+                  unoptimized
                   className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-35"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>

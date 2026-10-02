@@ -15,8 +15,11 @@ export default function ProductCard({ product }) {
 
   const { id, title, slug, price, discount, images, brand, reviews } = product || {};
 
-  const primaryImage = images?.[0]?.url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
-  const secondaryImage = images?.[1]?.url || primaryImage;
+  const defaultPlaceholder = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
+  const primaryImage = images?.[0]?.url || defaultPlaceholder;
+  const secondaryImage = images?.[1]?.url || null;
+
+  const [imgSrc, setImgSrc] = useState(primaryImage);
 
   const finalPrice = price - discount;
   const ratingAvg = reviews?.length 
@@ -62,21 +65,28 @@ export default function ProductCard({ product }) {
       <Link href={productUrl} className="relative block aspect-square w-full overflow-hidden bg-slate-950">
         {/* Primary Image */}
         <Image 
-          src={primaryImage} 
-          alt={title}
+          src={imgSrc} 
+          alt={title || 'Product'}
           fill
+          unoptimized
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+          className={`object-cover transition-all duration-500 ${
+            secondaryImage ? 'group-hover:opacity-0' : 'group-hover:scale-105'
+          }`}
+          onError={() => setImgSrc(defaultPlaceholder)}
         />
 
-        {/* Secondary Angle Image on Hover */}
-        <Image 
-          src={secondaryImage} 
-          alt={`${title} secondary view`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-        />
+        {/* Secondary Angle Image on Hover (if available) */}
+        {secondaryImage && (
+          <Image 
+            src={secondaryImage} 
+            alt={`${title} secondary view`}
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          />
+        )}
         
         {/* Animated Wishlist Heart Button */}
         <motion.button 

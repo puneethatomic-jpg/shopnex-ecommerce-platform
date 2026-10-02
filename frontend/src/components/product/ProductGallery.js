@@ -16,6 +16,7 @@ export default function ProductGallery({ images }) {
           src={imgList[activeIdx]?.url || fallbackUrl} 
           alt="Product detail"
           fill
+          unoptimized
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           priority
@@ -39,6 +40,7 @@ export default function ProductGallery({ images }) {
                 src={img.url} 
                 alt="Product thumbnail"
                 fill
+                unoptimized
                 sizes="80px"
                 className="object-cover"
               />
