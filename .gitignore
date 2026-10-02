@@ -35,4 +35,5 @@ docker-compose.override.yml
 
 # Databases
 *.db
+!backend/prisma/dev.db
 *.db-journal
