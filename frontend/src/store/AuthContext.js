@@ -82,7 +82,30 @@ export function AuthProvider({ children }) {
   // Helper method for switching role instantly (for demonstration/mock testing)
   const switchRole = async (role) => {
     const targetClerkId = role === 'ADMIN' ? 'mock_admin_123' : 'mock_customer_123';
-    return login(targetClerkId);
+    const fallbackUser = role === 'ADMIN'
+      ? { id: 'admin_123', clerkId: 'mock_admin_123', name: 'ShopNex Admin', email: 'admin@shopnex.com', role: 'ADMIN' }
+      : { id: 'customer_123', clerkId: 'mock_customer_123', name: 'John Doe', email: 'customer@shopnex.com', role: 'CUSTOMER' };
+
+    // Set state immediately for 0ms instant UI feedback
+    setUser(fallbackUser);
+    setToken(fallbackUser.clerkId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('shopnex_token', fallbackUser.clerkId);
+    }
+    setLoading(false);
+
+    // Sync with server in background without blocking
+    api.post('/auth/login', { clerkId: targetClerkId })
+      .then((res) => {
+        if (res?.success && res?.data) {
+          setUser(res.data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Background auth sync note:', err.message);
+      });
+
+    return fallbackUser;
   };
 
   return (

@@ -39,27 +39,22 @@ export default function AuthGateway() {
     setHasEntered(true);
   };
 
-  const handleQuickEnter = async (targetRole) => {
-    setIsSubmitting(true);
-    try {
-      await switchRole(targetRole);
-    } catch (err) {
-      console.warn('Switch role warning:', err);
-    } finally {
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('shopnex_portal_entered', 'true');
-        localStorage.setItem('shopnex_portal_entered', 'true');
-      }
-      setHasEntered(true);
-      setIsSubmitting(false);
+  const handleQuickEnter = (targetRole) => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('shopnex_portal_entered', 'true');
+      localStorage.setItem('shopnex_portal_entered', 'true');
+    }
+    setHasEntered(true);
 
-      if (targetRole === 'ADMIN') {
-        toast.success('Welcome! Entered Administrator Control Portal');
-        router.push('/admin');
-      } else {
-        toast.success('Welcome! Entered Customer Storefront');
-        router.push('/');
-      }
+    // Switch role instantly in local state (0ms)
+    switchRole(targetRole);
+
+    if (targetRole === 'ADMIN') {
+      toast.success('Welcome! Entered Administrator Control Portal');
+      router.push('/admin');
+    } else {
+      toast.success('Welcome! Entered Customer Storefront');
+      router.push('/');
     }
   };
 
