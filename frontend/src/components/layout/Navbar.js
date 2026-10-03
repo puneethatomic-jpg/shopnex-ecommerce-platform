@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/store/AuthContext';
 import { useCart } from '@/store/CartContext';
+import { useWishlist } from '@/store/WishlistContext';
 import AuthModal from '../auth/AuthModal';
 import { 
   ShoppingBag, 
@@ -43,6 +44,7 @@ export function CartBadge({ count }) {
 export default function Navbar({ onOpenSearch }) {
   const { user, isAdmin, logout } = useAuth();
   const { itemCount, openDrawer } = useCart();
+  const { wishlistCount } = useWishlist();
   const pathname = usePathname();
   
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -118,6 +120,11 @@ export default function Navbar({ onOpenSearch }) {
           {/* Wishlist */}
           <Link href="/wishlist" className="relative p-2 text-slate-300 hover:text-pink-400 transition-colors" title="Wishlist">
             <Heart className="w-5 h-5" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[9px] font-bold text-white shadow-md">
+                {wishlistCount}
+              </span>
+            )}
           </Link>
 
           {/* Mini Cart Drawer Trigger with Animated Pop & Bounce Badge */}

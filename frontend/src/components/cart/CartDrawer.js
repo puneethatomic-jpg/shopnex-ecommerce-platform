@@ -124,14 +124,14 @@ export default function CartDrawer() {
             </div>
           ) : (
             cartItems.map((item) => {
-              const product = item.product;
+              const product = item.product || {};
               const imageUrl = product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800';
-              const finalPrice = product.price - product.discount;
+              const finalPrice = Math.max(0, (product.price || 0) - (product.discount || 0));
 
               return (
                 <div key={item.id} className="flex gap-4 p-3 bg-slate-950 border border-white/5 rounded-2xl items-center">
                   <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 border border-white/5">
-                    <Image src={imageUrl} alt={product.title} fill className="object-cover" />
+                    <Image src={imageUrl} alt={product.title || 'Product'} fill unoptimized className="object-cover" />
                   </div>
 
                   <div className="flex-1 flex flex-col gap-1">

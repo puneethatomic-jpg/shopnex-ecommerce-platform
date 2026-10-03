@@ -8,6 +8,7 @@ import ProductGallery from '@/components/product/ProductGallery';
 import RecommendationSection from '@/components/product/RecommendationSection';
 import { Star, ShieldCheck, Heart, ShoppingBag, Plus, Minus, ArrowLeft, Sparkles } from 'lucide-react';
 import { useCart } from '@/store/CartContext';
+import { useWishlist } from '@/store/WishlistContext';
 import { useRecentlyViewed } from '@/store/RecentlyViewedContext';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -16,6 +17,7 @@ export default function ProductDetailPage() {
   const { slug: productId } = useParams();
   const queryClient = useQueryClient();
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const { addRecentlyViewed } = useRecentlyViewed();
 
   const [quantity, setQuantity] = useState(1);
@@ -62,8 +64,8 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     try {
-      await addToCart(product.id, quantity);
-      toast.success(`${product.title} added to cart`);
+      await addToCart(product, quantity);
+      toast.success(`${product.title} added to cart!`);
     } catch (err) {
       toast.error(err.message || 'Failed to add item to cart');
     }
@@ -216,10 +218,15 @@ export default function ProductDetailPage() {
                   <ShoppingBag className="w-4 h-4" /> Add to Cart
                 </button>
                 <button 
-                  className="p-3.5 border border-white/10 hover:border-pink-500/30 hover:text-pink-400 rounded-xl transition-all"
-                  title="Add to Wishlist"
+                  onClick={() => toggleWishlist(product)}
+                  className={`p-3.5 border rounded-xl transition-all ${
+                    isWishlisted 
+                      ? 'bg-pink-500/20 text-pink-400 border-pink-500/40 shadow-[0_0_15px_rgba(236,72,153,0.3)]' 
+                      : 'border-white/10 hover:border-pink-500/30 hover:text-pink-400 text-slate-400'
+                  }`}
+                  title="Toggle Wishlist"
                 >
-                  <Heart className="w-4.5 h-4.5" />
+                  <Heart className={`w-4.5 h-4.5 ${isWishlisted ? 'fill-pink-500 stroke-pink-500' : ''}`} />
                 </button>
               </div>
             </div>

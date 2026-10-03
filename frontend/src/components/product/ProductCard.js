@@ -6,14 +6,17 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Star, ShoppingBag, Plus, Sparkles } from 'lucide-react';
 import { useCart } from '@/store/CartContext';
+import { useWishlist } from '@/store/WishlistContext';
 import { toast } from 'sonner';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [adding, setAdding] = useState(false);
 
   const { id, title, slug, price, discount, images, brand, reviews } = product || {};
+
+  const isWishlisted = isInWishlist(id || slug);
 
   const defaultPlaceholder = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
   const primaryImage = images?.[0]?.url || defaultPlaceholder;
@@ -21,7 +24,7 @@ export default function ProductCard({ product }) {
 
   const [imgSrc, setImgSrc] = useState(primaryImage);
 
-  const finalPrice = price - discount;
+  const finalPrice = Math.max(0, price - discount);
   const ratingAvg = reviews?.length 
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
     : '5.0';
@@ -31,7 +34,7 @@ export default function ProductCard({ product }) {
     e.stopPropagation();
     try {
       setAdding(true);
-      await addToCart(id, 1);
+      await addToCart(product, 1);
       toast.success(`${title} added to mini cart!`);
     } catch (err) {
       toast.error(err.message || 'Failed to add item to cart');
@@ -40,17 +43,10 @@ export default function ProductCard({ product }) {
     }
   };
 
-  const toggleWishlist = (e) => {
+  const handleToggleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    if (!isWishlisted) {
-      toast.success(`${title} saved to wishlist!`, {
-        icon: '❤️',
-      });
-    } else {
-      toast.info(`Removed from wishlist`);
-    }
+    toggleWishlist(product);
   };
 
   const productUrl = `/products/${slug || id}`;
@@ -90,14 +86,14 @@ export default function ProductCard({ product }) {
         
         {/* Animated Wishlist Heart Button */}
         <motion.button 
-          onClick={toggleWishlist}
+          onClick={handleToggleWishlist}
           whileTap={{ scale: 0.75 }}
           className={`absolute top-3.5 right-3.5 p-2.5 rounded-full border backdrop-blur-md transition-colors duration-300 z-10 ${
             isWishlisted 
               ? 'bg-pink-500/90 text-white border-pink-400 shadow-[0_0_15px_rgba(236,72,153,0.5)]' 
               : 'bg-slate-950/70 border-white/10 text-slate-400 hover:text-pink-400'
           }`}
-          aria-label="Add to wishlist"
+          aria-label="Toggle wishlist"
         >
           <motion.svg
             animate={isWishlisted ? { scale: [1, 1.35, 1] } : { scale: 1 }}
